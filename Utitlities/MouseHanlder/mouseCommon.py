@@ -1,7 +1,7 @@
 from Utitlities.ThreadController.threadCommon import ThreadCommonQueue
 import queue
-import mouse
-
+# import mouse
+from pynput import mouse
 def mouse_thread_func(mouseQueue):
     print("Mouse Thread begin")
     while True:

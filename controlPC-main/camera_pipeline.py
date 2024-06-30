@@ -112,6 +112,7 @@ def update_fps():
     end_time = time.time()
     fps = 1 / (end_time - start_time)
     start_time = end_time
+
 import multiprocessing
 from Utitlities.ThreadController.threadCommon import ThreadCommonQueue
 from Utitlities.MouseHanlder.mouseCommon import mouse_thread_func
@@ -156,7 +157,7 @@ if __name__ == "__main__":
                     MouseQueue.set_event(("MOVE", (hand_pos[0]*1920,hand_pos[1]*1080)))
                     print(hand_pos[0]*1920,hand_pos[1]*1080)
                     if debug:
-                        ocrQueue.set_event(("POS",(539, 75)))
+                        ocrQueue.set_event(("POS",(558, 325)))
                         debug = 0
                         print("ocr event sent")
                     # detected_gesture = detect_flick_gesture(hand_position_history)

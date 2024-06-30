@@ -9,7 +9,7 @@ global reader
 
 def initOcr():
     global reader
-    reader = easyocr.Reader(['en'], gpu=False)
+    reader = easyocr.Reader(['en'], gpu=True)
 
 def capture_screenshot_around_point(point, region_width=300, region_height=100):
     x, y = point
@@ -103,9 +103,11 @@ def find_closest_word(results, click_point, region_top_left):
 
 def do_processing(arg):
     start_time = time.time()
-    # point = get_mouse_click_position()#individual testing
+    point=arg
+    if not arg:
+        initOcr()
+        point = get_mouse_click_position()#individual testing
     print("do processing start")
-    point = arg
     region_width = 300
     region_height = 100
 
@@ -135,21 +137,31 @@ def do_processing(arg):
         print(f"Closest recognized text: {text} with confidence: {prob}")
 
         # Draw bounding box and text on the image
-        # (top_left, bottom_right) = bbox
-        # top_left = tuple(map(int, top_left))
-        # bottom_right = tuple(map(int, bottom_right))
+        (top_left, bottom_right) = bbox
+        top_left = tuple(map(int, top_left))
+        bottom_right = tuple(map(int, bottom_right))
         # cv2.rectangle(screenshot, top_left, bottom_right, (0, 255, 0), 2)
         # cv2.putText(screenshot, text, top_left, cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
 
         # Display the image with OCR results (optional)
         # cv2.imshow('OCR Result', screenshot)
         print(f"prediction time = {time.time() - start_time}")
-        return closest_word, center
+
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
+        return closest_word, center
     else:
         print("No text found in the captured region.")
-        return None
+        return None, None
 
 if __name__ == "__main__":
-    do_processing()
+    import multiprocessing
+    from Utitlities.UIProcess.tooltip import ui_listener
+    ui_queue = multiprocessing.Queue()
+    ui_process = multiprocessing.Process(target=ui_listener, args=(ui_queue,))
+    ui_process.start()
+    _,center = do_processing(None)
+    ui_queue.put(("OCR_RES", ("Camera is the best sensor in the world is it not ..heheheheheheheh", center)))
+    time.sleep(20)
+    ui_queue.put(("QUIT", None))
+    ui_process.join()

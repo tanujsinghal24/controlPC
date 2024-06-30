@@ -87,16 +87,21 @@ class ToolTip(QWidget):
 def ui_listener(queue):
     print("tooltip ui process has begun")
     app = QApplication(sys.argv)
+    app.processEvents()  # Ensure all events are processed
     tooltip = ToolTip("Initial Tooltip", width=250)
     # tooltip.show_tooltip(QPoint(100, 100), "Waiting for OCR results...")
+    timer = QTimer()
 
     def update_tooltip(text, pos):
+        for screen in app.screens():
+            print(screen.geometry())
         print("tooltip update invoked")
         tooltip.update_tooltip(text, QPoint(pos[0]-125, pos[1]+10), 250)
 
     def process_queue():
         while not queue.empty():
             event = queue.get()
+            print("hit")
             eventType, arg = event
             if eventType == 'OCR_RES':
                 text, pos = arg
@@ -105,9 +110,11 @@ def ui_listener(queue):
                 update_tooltip(text, pos)
             elif eventType == "QUIT":
                 print("end of ui process")
+                timer.stop()
+                timer.disconnect()
                 app.quit()
 
-    timer = QTimer()
+
     timer.timeout.connect(process_queue)
     timer.start(100)
     sys.exit(app.exec_())
